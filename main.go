@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"ewallets-tim-1/controllers"
 	"fmt"
 	"log"
 	"os"
@@ -70,7 +71,7 @@ func main(){
 		case 0:
 			fmt.Println("Exit From System")
 		case 1:
-			fmt.Println("register")
+			controllers.Register(db)
 		case 2:
 
 		case 3:
