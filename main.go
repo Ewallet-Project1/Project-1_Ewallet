@@ -56,14 +56,6 @@ func main() {
 	fmt.Println("[0]: Keluar Aplikasi")
 	fmt.Println("[1]: Register")
 	fmt.Println("[2]: Login")
-	// fmt.Println("[3]: Lihat Profil Akun")
-	// fmt.Println("[4]: Edit Akun")
-	// fmt.Println("[5]: Delete Akun")
-	// fmt.Println("[6]: Top-up")
-	// fmt.Println("[7]: Transaction")
-	// fmt.Println("[8]: History Top-up")
-	// fmt.Println("[9]: History Transaction")
-	// fmt.Println("[10]: Lihat Profil pengguna lain")
 	var pilihan int
 	fmt.Println("Masukkan angka sesuai pilihan menu:")
 	fmt.Scanln(&pilihan)
@@ -75,29 +67,43 @@ func main() {
 	case 1:
 		controllers.Register(db)
 	case 2:
-		noTelp, pilihanLogin := controllers.Login(db)
+		noTelp := controllers.Login(db)
+		fmt.Println("Login Berhasil")
+		fmt.Println("Masukkan angka sesuai pilihan menu:")
+		fmt.Println("[3]: Lihat Profil Akun")
+		fmt.Println("[4]: Edit Akun")
+		fmt.Println("[5]: Delete Akun")
+		fmt.Println("[6]: Top-up")
+		var pilihanLogin int
+		fmt.Scanln(&pilihanLogin)
+		// fmt.Println("[7]: Transaction")
+		// fmt.Println("[8]: History Top-up")
+		// fmt.Println("[9]: History Transaction")
+		// fmt.Println("[10]: Lihat Profil pengguna lain")
 		switch pilihanLogin {
 		case 3:
 			controllers.ReadProfile(db, noTelp)
 		case 4:
 			controllers.EditProfile(db, noTelp)
+		case 6:
+			controllers.TopUpSaldo(db, noTelp)
 		}
 
-		// case 3:
-		// 	controllers.ReadProfile(db, noTelp)
-		// case 4:
+	case 3:
+		// controllers.ReadProfile(db, noTelp)
+	case 4:
 
-		// case 5:
+	case 5:
 
-		// case 6:
+	case 6:
 
-		// case 7:
+	case 7:
 
-		// case 8:
+	case 8:
 
-		// case 9:
+	case 9:
 
-		// case 10:
+	case 10:
 
 	}
 }
