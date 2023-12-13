@@ -39,11 +39,10 @@ func Register(db *sql.DB) {
 }
 
 // 2. Login
-func Login(db *sql.DB) (telp string, pilihanLogin int) {
+func Login(db *sql.DB) (telp string) {
 	var noTelp string
 	var password string
 	var newUser entities.User
-	var pilihan int
 	fmt.Println("Masukkan No Telepon")
 	fmt.Scanln(&newUser.Phone)
 
@@ -63,19 +62,7 @@ func Login(db *sql.DB) (telp string, pilihanLogin int) {
 	if password != user.Password {
 		log.Fatal("Password Salah !")
 	}
-	fmt.Println("Login Berhasil")
-	fmt.Println("Masukkan angka sesuai pilihan menu:")
-	fmt.Println("[3]: Lihat Profil Akun")
-	fmt.Println("[4]: Edit Akun")
-	fmt.Println("[5]: Delete Akun")
-	// fmt.Println("[6]: Top-up")
-	// fmt.Println("[7]: Transaction")
-	// fmt.Println("[8]: History Top-up")
-	// fmt.Println("[9]: History Transaction")
-	// fmt.Println("[10]: Lihat Profil pengguna lain")
-	fmt.Scanln(&pilihan)
-	pilihanLogin = pilihan
-	return noTelp, pilihanLogin
+	return noTelp
 }
 
 // 3. Read Data / lihat profil akun
@@ -141,4 +128,56 @@ func EditProfile(db *sql.DB, noTelp string) {
 			fmt.Println("Update Failed")
 		}
 	}
+}
+
+// 6. Top up
+func TopUpSaldo(db *sql.DB, noTelp string) {
+	var user entities.User
+	var jumlahTopUp uint64
+	var status string
+	var addMoney uint64
+	fmt.Println("Masukkan jumlah uang yang ingin ditbamahkan ke saldo:")
+	fmt.Scanln(&jumlahTopUp)
+
+	if jumlahTopUp < 1000 {
+		fmt.Println("miskin jgn belagu, kerja lagi")
+	} else {
+
+		row := db.QueryRow("SELECT id, phone, balance FROM users WHERE phone = ?", noTelp)
+		if err := row.Scan(&user.ID, &user.Phone, &user.Balance); err != nil {
+			if err == sql.ErrNoRows {
+				errorRead := fmt.Errorf("Id dengan : %s tidak terdaftar", noTelp)
+				fmt.Println(errorRead)
+			}
+			fmt.Print(err)
+		}
+
+		addMoney = user.Balance + jumlahTopUp
+		result, errTopUp := db.Exec("UPDATE users SET balance = ? WHERE phone = ?", addMoney, noTelp)
+		if errTopUp != nil {
+			log.Fatal("Error Top up", errTopUp.Error())
+		} else {
+			row, _ := result.RowsAffected()
+			if row > 0 {
+				fmt.Printf("Top Up sebanyak Rp %d telah berhasil\n", jumlahTopUp)
+				fmt.Printf("Saldo saat ini : %d\n", addMoney)
+				status = "Berhasil"
+			} else {
+				fmt.Println("Top Up Failed")
+			}
+		}
+
+		resultTopUp, errorTopUp := db.Exec("INSERT INTO top_up (user_id, amount, status) VALUES (?, ?, ?)", user.ID, jumlahTopUp, status)
+		if errorTopUp != nil {
+			log.Fatal("error insert top up data", errorTopUp.Error())
+		} else {
+			row, _ := resultTopUp.RowsAffected()
+			if row > 0 {
+				fmt.Println("Insert Top Up data Success")
+			} else {
+				fmt.Println("Insert Top Up data Failed")
+			}
+		}
+	}
+
 }
