@@ -87,6 +87,8 @@ func main() {
 			controllers.EditProfile(db, noTelp)
 		case 6:
 			controllers.TopUpSaldo(db, noTelp)
+		case 5:
+			controllers.Delete(db, noTelp)
 		}
 
 	case 3:
