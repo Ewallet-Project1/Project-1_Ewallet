@@ -130,6 +130,22 @@ func EditProfile(db *sql.DB, noTelp string) {
 	}
 }
 
+// 5. Delete Users
+func Delete(db *sql.DB, noTelp string){
+
+	result, errDelete := db.Exec("DELETE FROM users WHERE phone=?", noTelp)
+	if errDelete != nil{
+		log.Fatal("error Edit :", errDelete.Error())
+	} else {
+		rows, _:= result.RowsAffected()
+		if rows > 0{
+			fmt.Println("success deleted:)")
+		} else {
+			fmt.Println("failed deleted :(")
+		}
+	}
+}
+
 // 6. Top up
 func TopUpSaldo(db *sql.DB, noTelp string) {
 	var user entities.User
