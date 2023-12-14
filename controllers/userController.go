@@ -219,6 +219,9 @@ func Transaction(db *sql.DB, noTelp string) {
 	}
 	if user.Balance < 5000 {
 		fmt.Println("TOP UP DULU, ANDA MISKIN !")
+	}
+	if userPenerima.Phone == user.Phone {
+		log.Fatal("Maaf tidak bisa mengirim uang ke diri sendiri")
 	} else {
 		// scan penerima
 		row := db.QueryRow("SELECT id, full_name, phone, balance FROM users WHERE phone =?", userPenerima.Phone)
@@ -229,7 +232,7 @@ func Transaction(db *sql.DB, noTelp string) {
 			}
 			fmt.Println(errPenerima)
 		}
-		fmt.Println("pengirim :", user.FullName, "Penerima :", userPenerima.FullName, "\nSaldo Anda saat ini:", user.Balance)
+		fmt.Println("pengirim :", user.FullName,"\n", "Penerima :", userPenerima.FullName, "\nSaldo Anda saat ini:", user.Balance)
 		fmt.Println("Masukkan Jumlah Transfer :")
 		fmt.Scanln(&jumlahTransfer)
 		if jumlahTransfer < 1000 {
@@ -244,7 +247,7 @@ func Transaction(db *sql.DB, noTelp string) {
 					fmt.Printf("Transfer sebanyak Rp.%d ke %s telah Berhasil! \n", jumlahTransfer, userPenerima.FullName)
 					statusTransfer = "Hore ! Transaksi anda Berhasil !"
 				} else {
-					fmt.Println("Yaah, Maaf Transaksi anda Gagal")
+					fmt.Println("Transaksi Gagal !")
 				}
 			}
 
