@@ -9,3 +9,4 @@ type User struct {
 	Balance  uint64
 	CreatedAt []uint8
 }
+
