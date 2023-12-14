@@ -236,7 +236,7 @@ func Transaction(db *sql.DB, noTelp string) {
 		fmt.Println("Masukkan Jumlah Transfer :")
 		fmt.Scanln(&jumlahTransfer)
 		if jumlahTransfer < 1000 {
-			fmt.Println("MINIMAL TRANSFER 1000 !!!")
+			log.Fatal("MINIMAL TRANSFER 1000 !!!")
 		} else {
 			reduceMoney = user.Balance - jumlahTransfer
 			result, errTransfer := db.Exec("UPDATE users SET balance = ? WHERE Phone = ?", reduceMoney, user.Phone)
