@@ -218,7 +218,7 @@ func Transaction(db *sql.DB, noTelp string) {
 		}
 	}
 	if user.Balance < 5000 {
-		fmt.Println("TOP UP DULU, ANDA MISKIN !")
+		log.Fatal("TOP UP DULU, ANDA MISKIN !")
 	}
 	if userPenerima.Phone == user.Phone {
 		log.Fatal("Maaf tidak bisa mengirim uang ke diri sendiri")
@@ -232,9 +232,11 @@ func Transaction(db *sql.DB, noTelp string) {
 			}
 			fmt.Println(errPenerima)
 		}
+		
 		fmt.Println("pengirim :", user.FullName,"\n", "Penerima :", userPenerima.FullName, "\nSaldo Anda saat ini:", user.Balance)
 		fmt.Println("Masukkan Jumlah Transfer :")
 		fmt.Scanln(&jumlahTransfer)
+
 		if jumlahTransfer < 1000 {
 			log.Fatal("MINIMAL TRANSFER 1000 !!!")
 		} else {
