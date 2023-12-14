@@ -232,7 +232,7 @@ func Transaction(db *sql.DB, noTelp string) {
 			}
 			fmt.Println(errPenerima)
 		}
-		
+
 		fmt.Println("pengirim :", user.FullName,"\n", "Penerima :", userPenerima.FullName, "\nSaldo Anda saat ini:", user.Balance)
 		fmt.Println("Masukkan Jumlah Transfer :")
 		fmt.Scanln(&jumlahTransfer)
@@ -260,7 +260,7 @@ func Transaction(db *sql.DB, noTelp string) {
 			} else {
 				row, _ := result.RowsAffected()
 				if row > 0 {
-					fmt.Printf("Transfer sebanyak Rp.%d dari %s telah Diterima! \n", jumlahTransfer, user.FullName)
+					fmt.Printf("Transfer sebanyak Rp.%d dari %s, telah Diterima oleh  %s", jumlahTransfer, user.FullName, userPenerima.FullName)
 				} else {
 					fmt.Println("Yaah, Maaf Transaksi anda Gagal")
 				}
@@ -273,7 +273,7 @@ func Transaction(db *sql.DB, noTelp string) {
 				row, _ := resultTransfer.RowsAffected()
 				if row > 0 {
 					fmt.Println("Transfer Success!")
-					fmt.Printf("Saldo Anda saat ini : %d\n", reduceMoney)
+					fmt.Printf("Saldo Anda saat ini : %d", reduceMoney)
 				} else {
 					fmt.Println("Transfer Failed!!!")
 				}
