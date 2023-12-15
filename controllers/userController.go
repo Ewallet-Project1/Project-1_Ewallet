@@ -318,6 +318,64 @@ func HistoryTopUp(db *sql.DB, noTelp string) {
 	}
 
 	for _, v := range historyTopUps {
-		fmt.Printf("jumlah top-up: %d\nstatus : %s\ntanggal: %v\n ========== \n", v.Amount, v.Status, v.Created_at)
+		fmt.Printf("jumlah top-up: %d\nstatus : %s, tanggal: %v\n ========= ", v.Amount, v.Status, v.Created_at)
+	}
+}
+
+// 9. History Transaction
+func HistoryTransaction(db *sql.DB, noTelp string) {
+	var historyTransactions []entities.Transaction
+	var user entities.User
+
+	script1 := "SELECT id, full_name, phone, balance FROM users WHERE phone =?"
+	row := db.QueryRow(script1, noTelp)
+	if err := row.Scan(&user.ID, &user.FullName, &user.Phone, &user.Balance); err != nil {
+		fmt.Println(user.ID)
+		if err == sql.ErrNoRows {
+			errRead := fmt.Errorf("id dengan : %s tidak terdaftar", user.Phone)
+			fmt.Println(errRead)
+		}
+	}
+
+	script2 := "SELECT from_user_id , to_user_id, amount, message, created_at from transactions _name WHERE from_user_id = ? or to_user_id = ?"
+	rows, errSelect := db.Query(script2, user.ID, user.ID)
+	if errSelect != nil {
+		log.Fatal("error run query select ", errSelect.Error())
+	}
+
+	for rows.Next() {
+
+		var historyTransaction entities.Transaction // var untuk menyimpan data akun per baris
+
+		// proses scan dan mapping data ke var historyTopUp
+		errScan := rows.Scan(&historyTransaction.From_user_id, &historyTransaction.To_user_id, &historyTransaction.Amount, &historyTransaction.Message, &historyTransaction.Created_at)
+		if errScan != nil {
+			log.Fatal("error scan select", errScan.Error())
+		}
+		historyTransactions = append(historyTransactions, historyTransaction)
+	}
+
+	for _, v := range historyTransactions {
+		var userSender entities.User
+		// userSender.ID = v.From_user_id
+		row := db.QueryRow("SELECT id, full_name FROM users WHERE id =", v.From_user_id)
+		if err := row.Scan(&userSender.ID, &userSender.FullName); err != nil {
+			fmt.Println(userSender.FullName)
+			if err == sql.ErrNoRows {
+				errRead := fmt.Errorf("id dengan : %s tidak terdaftar", user.Phone)
+				fmt.Println(errRead)
+			}
+		}
+
+		var userRecepient entities.User
+		// userSender.ID = v.From_user_id
+		rowRecept := db.QueryRow("SELECT id, full_name FROM users WHERE id =", v.To_user_id)
+		if err := rowRecept.Scan(&userRecepient.ID, &userRecepient.FullName); err != nil {
+			if err == sql.ErrNoRows {
+				errRead := fmt.Errorf("id dengan : %s tidak terdaftar", user.Phone)
+				fmt.Println(errRead)
+			}
+		}
+		fmt.Printf("Dari: %s\nKe : %s\nJumlah Uang: %d\nPesan: %s\ntanggal: %v\n ========= \n", userSender.FullName, userRecepient.FullName, v.Amount, v.Message, v.Created_at)
 	}
 }

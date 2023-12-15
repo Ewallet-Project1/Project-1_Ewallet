@@ -94,8 +94,8 @@ func main() {
 		case 8:
 			controllers.HistoryTopUp(db, noTelp)
 
-			// case 9:
-
+		case 9:
+			controllers.HistoryTransaction(db, noTelp)
 			// case 10:
 
 		}
