@@ -206,6 +206,7 @@ func Transaction(db *sql.DB, noTelp string) {
 	var reduceMoney uint64
 	var addaMoney uint64
 	var statusTransfer string
+	var message string
 	fmt.Println("masukkan nomor tujuan:")
 	fmt.Scanln(&userPenerima.Phone)
 
@@ -236,6 +237,8 @@ func Transaction(db *sql.DB, noTelp string) {
 		fmt.Println("pengirim :", user.FullName, "\n", "Penerima :", userPenerima.FullName, "\nSaldo Anda saat ini:", user.Balance)
 		fmt.Println("Masukkan Jumlah Transfer :")
 		fmt.Scanln(&jumlahTransfer)
+		fmt.Println("Masukkan Pesan :")
+		fmt.Scanln(&message)
 
 		if jumlahTransfer < 1000 {
 			log.Fatal("MINIMAL TRANSFER 1000 !!!")
@@ -266,7 +269,7 @@ func Transaction(db *sql.DB, noTelp string) {
 				}
 			}
 
-			resultTransfer, errorTransfer := db.Exec("INSERT INTO transactions (from_user_id, to_user_id, amount, status) VALUES (?,?,?,?)", user.ID, userPenerima.ID, jumlahTransfer, statusTransfer)
+			resultTransfer, errorTransfer := db.Exec("INSERT INTO transactions (from_user_id, to_user_id, amount, message, status) VALUES (?,?,?,?,?)", user.ID, userPenerima.ID, jumlahTransfer, message, statusTransfer)
 			if errorTransfer != nil {
 				log.Fatal("Error Insert Transaction Data", errorTransfer.Error())
 			} else {
@@ -318,7 +321,7 @@ func HistoryTopUp(db *sql.DB, noTelp string) {
 	}
 
 	for _, v := range historyTopUps {
-		fmt.Printf("jumlah top-up: %d\nstatus : %s, tanggal: %v\n ========= ", v.Amount, v.Status, v.Created_at)
+		fmt.Printf("jumlah top-up: %d\nstatus : %s\ntanggal: %v\n ========= \n", v.Amount, v.Status, v.Created_at)
 	}
 }
 
