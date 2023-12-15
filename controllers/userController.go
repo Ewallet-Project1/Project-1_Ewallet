@@ -379,3 +379,18 @@ func HistoryTransaction(db *sql.DB, noTelp string) {
 		fmt.Printf("Dari: %s\nKe : %s\nJumlah Uang: %d\nPesan: %s\ntanggal: %v\n ========= \n", userSender.FullName, userRecepient.FullName, v.Amount, v.Message, v.Created_at)
 	}
 }
+
+// 10. read data by phone
+func ReadDataByPhone(db *sql.DB) {
+	var user entities.User
+	var userPhone string
+	fmt.Println("Masukkan No Telepon:")
+	fmt.Scanln(&userPhone)
+
+	fmt.Println(userPhone)
+	row := db.QueryRow("SELECT full_name, phone, address FROM users WHERE phone = ?", userPhone)
+	if err := row.Scan(&user.FullName, &user.Phone, &user.Address); err != nil {
+		fmt.Print(err)
+	}
+	fmt.Printf("Nama: %s\nNo HP: %s\nAlamat: %s", user.FullName, user.Phone, user.Address)
+}

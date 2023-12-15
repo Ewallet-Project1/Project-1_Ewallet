@@ -96,7 +96,8 @@ func main() {
 
 		case 9:
 			controllers.HistoryTransaction(db, noTelp)
-			// case 10:
+		case 10:
+			controllers.ReadDataByPhone(db)
 
 		}
 
