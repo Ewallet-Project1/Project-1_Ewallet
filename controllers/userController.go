@@ -131,14 +131,14 @@ func EditProfile(db *sql.DB, noTelp string) {
 }
 
 // 5. Delete Users
-func Delete(db *sql.DB, noTelp string){
+func Delete(db *sql.DB, noTelp string) {
 
 	result, errDelete := db.Exec("DELETE FROM users WHERE phone=?", noTelp)
-	if errDelete != nil{
+	if errDelete != nil {
 		log.Fatal("error Edit :", errDelete.Error())
 	} else {
-		rows, _:= result.RowsAffected()
-		if rows > 0{
+		rows, _ := result.RowsAffected()
+		if rows > 0 {
 			fmt.Println("success deleted:)")
 		} else {
 			fmt.Println("failed deleted :(")
@@ -196,4 +196,88 @@ func TopUpSaldo(db *sql.DB, noTelp string) {
 		}
 	}
 
+}
+
+// 7.transaksi
+func Transaction(db *sql.DB, noTelp string) {
+	var user entities.User
+	var userPenerima entities.User
+	var jumlahTransfer uint64
+	var reduceMoney uint64
+	var addaMoney uint64
+	var statusTransfer string
+	fmt.Println("masukkan nomor tujuan:")
+	fmt.Scanln(&userPenerima.Phone)
+
+	// scan pengirim
+	rows := db.QueryRow("SELECT id, full_name, phone, balance FROM users WHERE phone = ?", noTelp)
+	if errPengirim := rows.Scan(&user.ID, &user.FullName, &user.Phone, &user.Balance); errPengirim != nil {
+		if errPengirim == sql.ErrNoRows {
+			errorRead := fmt.Errorf("Id dengan : %s tidak terdaftar", noTelp)
+			fmt.Println(errorRead)
+		}
+	}
+	if user.Balance < 5000 {
+		log.Fatal("TOP UP DULU, ANDA MISKIN !")
+	}
+	if userPenerima.Phone == user.Phone {
+		log.Fatal("Maaf tidak bisa mengirim uang ke diri sendiri")
+	} else {
+		// scan penerima
+		row := db.QueryRow("SELECT id, full_name, phone, balance FROM users WHERE phone =?", userPenerima.Phone)
+		if errPenerima := row.Scan(&userPenerima.ID, &userPenerima.FullName, &userPenerima.Phone, &userPenerima.Balance); errPenerima != nil {
+			if errPenerima == sql.ErrNoRows {
+				errorRead := fmt.Errorf("Id dengan : %s tidak terdaftar", userPenerima.Phone)
+				fmt.Println(errorRead)
+			}
+			fmt.Println(errPenerima)
+		}
+
+		fmt.Println("pengirim :", user.FullName,"\n", "Penerima :", userPenerima.FullName, "\nSaldo Anda saat ini:", user.Balance)
+		fmt.Println("Masukkan Jumlah Transfer :")
+		fmt.Scanln(&jumlahTransfer)
+
+		if jumlahTransfer < 1000 {
+			log.Fatal("MINIMAL TRANSFER 1000 !!!")
+		} else {
+			reduceMoney = user.Balance - jumlahTransfer
+			result, errTransfer := db.Exec("UPDATE users SET balance = ? WHERE Phone = ?", reduceMoney, user.Phone)
+			if errTransfer != nil {
+				log.Fatal("ERROR Transfer : ", errTransfer.Error())
+				row, _ := result.RowsAffected()
+				if row > 0 {
+					fmt.Printf("Transfer sebanyak Rp.%d ke %s telah Berhasil! \n", jumlahTransfer, userPenerima.FullName)
+					statusTransfer = "Hore ! Transaksi anda Berhasil !"
+				} else {
+					fmt.Println("Transaksi Gagal !")
+				}
+			}
+
+			addaMoney = userPenerima.Balance + jumlahTransfer
+			result, errrTransfer := db.Exec("UPDATE users SET balance =? WHERE phone = ?", addaMoney, userPenerima.Phone)
+			if errrTransfer != nil {
+				log.Fatal("Error Transfer", errrTransfer.Error())
+			} else {
+				row, _ := result.RowsAffected()
+				if row > 0 {
+					fmt.Printf("Transfer sebanyak Rp.%d dari %s, telah Diterima oleh  %s", jumlahTransfer, user.FullName, userPenerima.FullName)
+				} else {
+					fmt.Println("Yaah, Maaf Transaksi anda Gagal")
+				}
+			}
+
+			resultTransfer, errorTransfer := db.Exec("INSERT INTO transactions (from_user_id, to_user_id, amount, status) VALUES (?,?,?,?)", user.ID, userPenerima.ID, jumlahTransfer, statusTransfer)
+			if errorTransfer != nil {
+				log.Fatal("Error Insert Transaction Data", errorTransfer.Error())
+			} else {
+				row, _ := resultTransfer.RowsAffected()
+				if row > 0 {
+					fmt.Println("Transfer Success!")
+					fmt.Printf("Saldo Anda saat ini : %d", reduceMoney)
+				} else {
+					fmt.Println("Transfer Failed!!!")
+				}
+			}
+		}
+	}
 }
