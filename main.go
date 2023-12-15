@@ -28,7 +28,7 @@ func InitDB() (*sql.DB, error) {
 		DB_PORT:     os.Getenv("DB_PORT"),
 		DB_NAME:     os.Getenv("DB_NAME"),
 	}
-	var connectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", cfg.DB_USERNAME, cfg.DB_PASSWORD, cfg.DB_HOST, cfg.DB_PORT, cfg.DB_NAME)
+	var connectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", cfg.DB_USERNAME, cfg.DB_PASSWORD, cfg.DB_HOST, cfg.DB_PORT, cfg.DB_NAME)
 	var db *sql.DB
 	var err error
 
@@ -75,11 +75,11 @@ func main() {
 		fmt.Println("[5]: Delete Akun")
 		fmt.Println("[6]: Top-up")
 		fmt.Println("[7]: Transaction")
+		fmt.Println("[8]: History Top-up")
+		fmt.Println("[9]: History Transaction")
+		fmt.Println("[10]: Lihat Profil pengguna lain")
 		var pilihanLogin int
 		fmt.Scanln(&pilihanLogin)
-		// fmt.Println("[8]: History Top-up")
-		// fmt.Println("[9]: History Transaction")
-		// fmt.Println("[10]: Lihat Profil pengguna lain")
 		switch pilihanLogin {
 		case 3:
 			controllers.ReadProfile(db, noTelp)
@@ -91,11 +91,12 @@ func main() {
 			controllers.TopUpSaldo(db, noTelp)
 		case 7:
 			controllers.Transaction(db, noTelp)
-		// case 8:
+		case 8:
+			controllers.HistoryTopUp(db, noTelp)
 
-		// case 9:
+			// case 9:
 
-		// case 10:
+			// case 10:
 
 		}
 

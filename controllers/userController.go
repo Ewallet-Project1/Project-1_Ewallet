@@ -233,7 +233,7 @@ func Transaction(db *sql.DB, noTelp string) {
 			fmt.Println(errPenerima)
 		}
 
-		fmt.Println("pengirim :", user.FullName,"\n", "Penerima :", userPenerima.FullName, "\nSaldo Anda saat ini:", user.Balance)
+		fmt.Println("pengirim :", user.FullName, "\n", "Penerima :", userPenerima.FullName, "\nSaldo Anda saat ini:", user.Balance)
 		fmt.Println("Masukkan Jumlah Transfer :")
 		fmt.Scanln(&jumlahTransfer)
 
@@ -279,5 +279,45 @@ func Transaction(db *sql.DB, noTelp string) {
 				}
 			}
 		}
+	}
+}
+
+// 8.History top-up
+func HistoryTopUp(db *sql.DB, noTelp string) {
+	var historyTopUps []entities.Top_Up
+	// var historyTopUp entities.Top_Up
+	var user entities.User
+
+	script1 := "SELECT id, full_name, phone, balance FROM users WHERE phone =?"
+	row := db.QueryRow(script1, noTelp)
+	if err := row.Scan(&user.ID, &user.FullName, &user.Phone, &user.Balance); err != nil {
+		fmt.Println(user.ID)
+		if err == sql.ErrNoRows {
+			errRead := fmt.Errorf("id dengan : %s tidak terdaftar", user.Phone)
+			fmt.Println(errRead)
+		}
+	}
+
+	script2 := "SELECT top_up.user_id, top_up.amount, top_up.status, top_up.created_at FROM top_up WHERE user_id = ?"
+	rows, errSelect := db.Query(script2, user.ID)
+	if errSelect != nil {
+		log.Fatal("error run query select ", errSelect.Error())
+	}
+
+	for rows.Next() {
+		var historyTopUp entities.Top_Up // var untuk menyimpan data akun per baris
+
+		// proses scan dan mapping data ke var historyTopUp
+		errScan := rows.Scan(&historyTopUp.User_id, &historyTopUp.Amount, &historyTopUp.Status, &historyTopUp.Created_at)
+		if errScan != nil {
+			log.Fatal("error scan select", errScan.Error())
+		}
+		// fmt.Println("joinDate:", joinDate)
+		// memasukkan dataAccount ke accounts
+		historyTopUps = append(historyTopUps, historyTopUp)
+	}
+
+	for _, v := range historyTopUps {
+		fmt.Printf("jumlah top-up: %d\nstatus : %s\ntanggal: %v\n ========== \n", v.Amount, v.Status, v.Created_at)
 	}
 }
